@@ -1,6 +1,7 @@
 """
 Distributed Component High-Throughput Traffic & Stress Testing Simulator for Spectre Meltdown Transient Agent.
 """
+import argparse
 import time
 import random
 import sys
@@ -63,5 +64,10 @@ def run_simulation(iterations: int = 100):
     print("=" * 70)
 
 if __name__ == "__main__":
-    n = int(sys.argv[1]) if len(sys.argv) > 1 else 100
-    run_simulation(n)
+    parser = argparse.ArgumentParser(description="Spectre Meltdown Transient Agent - Load Simulator")
+    parser.add_argument("-n", "--iterations", type=int, default=100, help="Number of simulation iterations")
+    args = parser.parse_args()
+    if args.iterations < 1:
+        print("Error: iterations must be >= 1", file=sys.stderr)
+        sys.exit(1)
+    run_simulation(args.iterations)
