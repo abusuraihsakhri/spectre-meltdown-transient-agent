@@ -66,3 +66,20 @@ def test_frontier_batch_false_string_does_not_trigger_critical(tmp_path):
     with dest.open(newline="", encoding="utf-8") as file:
         row = next(csv.DictReader(file))
     assert row["overall_status"] == "NOMINAL_OPTIMAL"
+
+
+def test_audit_api_rejects_phi_with_client_error():
+    response = TestClient(app).post("/api/audit", json={
+        "task_id": "MRN-123456789",
+        "target_identifier": "KEY-1",
+        "primary_metric": 10,
+    })
+    assert response.status_code == 400
+    assert "123456789" not in response.text
+
+
+def test_unimplemented_external_llm_providers_are_rejected():
+    from agents.llm_factory import LLMFactory
+    for provider in ("openai", "ollama", "claude", "unknown"):
+        with pytest.raises(ValueError, match="Unsupported"):
+            LLMFactory.create(provider)
