@@ -15,7 +15,7 @@ def create_app():
 
         app = FastAPI(
             title="Spectre / Meltdown Speculative Execution Side-Channel Verifier",
-            description="Audits speculative branch prediction boundaries, cache-line Flush+Reload timings, and verifies lfence / IBRS mitigations.",
+            description="Illustrative rules over submitted metric values; no hardware, timing, or CPU mitigation verification.",
             version="2.0.0-FRONTIER",
         )
 

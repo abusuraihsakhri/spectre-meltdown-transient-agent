@@ -9,6 +9,9 @@ import time
 import hmac
 import hashlib
 import secrets
+from copy import deepcopy
+from functools import wraps
+from threading import RLock
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field
@@ -55,6 +58,15 @@ class PHIGuard:
         return res
 
 
+def _audit_locked(method):
+    """Synchronize in-memory chain operations within a process."""
+    @wraps(method)
+    def protected(self, *args, **kwargs):
+        with self._lock:
+            return method(self, *args, **kwargs)
+    return protected
+
+
 class AuditTrail:
     """Cryptographic Tamper-Evident HMAC-SHA256 Audit Trail."""
     def __init__(self, secret_key: Optional[str] = None):
@@ -65,7 +77,9 @@ class AuditTrail:
             resolved_key = secrets.token_hex(32)
         self.secret_key = resolved_key.encode("utf-8") if isinstance(resolved_key, str) else resolved_key
         self.logs: List[Dict[str, Any]] = []
+        self._lock = RLock()
 
+    @_audit_locked
     def log(self, actor: str, actor_tier: str, event_type: str, details: Dict[str, Any]) -> Dict[str, Any]:
         payload_str = json.dumps(details, sort_keys=True)
         assert_no_phi(payload_str)
@@ -86,8 +100,9 @@ class AuditTrail:
             "current_hash": signature,
         }
         self.logs.append(entry)
-        return entry
+        return deepcopy(entry)
 
+    @_audit_locked
     def verify_integrity(self) -> bool:
         """Verify both chain linkage and HMAC signatures for all entries."""
         for i, entry in enumerate(self.logs):
@@ -105,8 +120,9 @@ class AuditTrail:
                 return False
         return True
 
+    @_audit_locked
     def get_trail(self) -> List[Dict[str, Any]]:
-        return self.logs
+        return deepcopy(self.logs)
 
 
 GLOBAL_AUDIT = AuditTrail()

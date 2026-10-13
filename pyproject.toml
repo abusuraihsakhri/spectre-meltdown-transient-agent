@@ -5,9 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "spectre-meltdown-transient-agent"
 version = "3.0.0"
-description = "Spectre / Meltdown Speculative Execution Side-Channel Verifier with Transient Agent Orchestration"
+description = "Illustrative multi-worker metric classification and in-memory audit demonstration"
 readme = "README.md"
-authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
+authors = [{ name = "Dr. Abu Suraih Sakhri" }]
 license = { text = "MIT" }
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -23,11 +23,17 @@ dependencies = [
 
 [project.optional-dependencies]
 web = ["fastapi>=0.110", "uvicorn>=0.27"]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "httpx>=0.27"]
 
 [project.scripts]
-spectre-meltdown-transient-agent = "agents.cli:main"
+spectre-meltdown-transient-agent = "cli:main"
 spectre-meltdown-frontier = "spectre_meltdown.cli:main"
+
+[tool.setuptools]
+py-modules = ["cli", "enrichment", "simulator", "spectre_meltdown_app"]
+
+[tool.setuptools.packages.find]
+include = ["agents*", "spectre_meltdown*"]
 
 [project.urls]
 Homepage = "https://github.com/abusuraihsakhri/spectre-meltdown-transient-agent"

@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spectre Meltdown Transient Engine — Operations Console</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <title>Spectre / Meltdown — Local Metric Rule Demo</title>
     <style>
         :root {
             --bg: #090d16;
@@ -20,7 +19,7 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
             padding: 2rem;
@@ -96,7 +95,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
             font-size: 0.85rem;
             color: #10b981;
             height: 380px;
@@ -118,119 +117,73 @@
         }
         .metric-val { font-size: 1.4rem; font-weight: 700; color: #fff; margin-top: 0.25rem; }
         .metric-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+            .notice { color: var(--text-muted); max-width: 880px; line-height: 1.5; margin-bottom: 1.5rem; }
+        .form-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .form-actions button { flex: 1 1 180px; }
+        .btn:focus-visible, input:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+        .btn:disabled { opacity: .45; cursor: not-allowed; }
+        .btn-secondary { background: #334155; }
+        input[type="checkbox"] { width: auto; margin-right: 0.45rem; }
+        .terminal { height: 400px; overflow-wrap: anywhere; font-size: 0.8rem; }
+        @media (max-width: 850px) {
+            body { padding: 1rem; }
+            .header { flex-wrap: wrap; gap: 1rem; }
+            .grid { grid-template-columns: 1fr; }
+            .metrics-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .card { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
-
-    <div class="header">
+    <header class="header">
         <div class="header-title">
-            <h1>Spectre Meltdown Transient Engine</h1>
-            <p>Domain: Clinical & Cryptographic AI | Standard: CAP / CLSI / NIST Standards | LabMind-Atlas Architecture</p>
+            <h1>Spectre / Meltdown: metric-rule demonstration</h1>
+            <p>Deterministic, educational evaluation of user-supplied metrics</p>
         </div>
-        <div>
-            <span class="badge">Air-Gapped Active</span>
-            <span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border-color: #10b981;">Zero-PHI Guard Active</span>
-        </div>
-    </div>
+        <div><span class="badge">Runs locally in this browser</span></div>
+    </header>
 
-    <div class="metrics-bar">
-        <div class="metric-box">
-            <div class="metric-label">System Status</div>
-            <div class="metric-val" style="color: var(--success);" id="m-status">OPTIMAL</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">Tasks Processed</div>
-            <div class="metric-val" id="m-tasks">142</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">Audit Blocks Signed</div>
-            <div class="metric-val" id="m-audit">142</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">PHI Interceptions</div>
-            <div class="metric-val" style="color: var(--accent);" id="m-phi">0</div>
-        </div>
-    </div>
+    <p class="notice"><strong>Scope:</strong> This page applies illustrative numerical and keyword rules.
+    It does not measure speculative execution, exploit CPU vulnerabilities, verify firmware mitigations,
+    generate signed audit records, or provide clinical guidance. No inputs are sent to a server.
+    Do not enter patient information, passwords, or other sensitive data.</p>
 
-    <div class="grid">
-        <div class="card">
-            <h2>⚙️ Dispatch Distributed Component Audit</h2>
-            <div class="form-group">
-                <label>Task / Sample ID</label>
-                <input type="text" id="task_id" value="TASK-2026-LIVE-01">
-            </div>
-            <div class="form-group">
-                <label>Target Identifier</label>
-                <input type="text" id="target_id" value="SPECIMEN-ALPHA-77">
-            </div>
-            <div class="form-group">
-                <label>Primary Measurement / Value</label>
-                <input type="number" id="primary_metric" value="29.4" step="0.1">
-            </div>
-            <div class="form-group">
-                <label>Secondary Metric / Kinetic Index</label>
-                <input type="number" id="secondary_metric" value="14.8" step="0.1">
-            </div>
-            <div class="form-group">
-                <label>Status / Phenotype Descriptor</label>
-                <input type="text" id="status_descriptor" value="DISCORDANT_ANOMALY">
-            </div>
-            <div class="form-group">
-                <label><input type="checkbox" id="is_critical" checked> Trigger Emergency / Critical Flag</label>
-            </div>
-            <button class="btn" onclick="runAudit()">Execute Distributed Component Audit</button>
-        </div>
+    <section class="metrics-bar" aria-label="Session counters">
+        <div class="metric-box"><div class="metric-label">Latest result</div><div class="metric-val" id="m-status">Ready</div></div>
+        <div class="metric-box"><div class="metric-label">Evaluations this session</div><div class="metric-val" id="m-tasks">0</div></div>
+        <div class="metric-box"><div class="metric-label">Alerts this session</div><div class="metric-val" id="m-alerts">0</div></div>
+        <div class="metric-box"><div class="metric-label">Processing mode</div><div class="metric-val" id="m-mode">Local</div></div>
+    </section>
 
-        <div class="card">
-            <h2>📊 Real-Time Consensus Dossier & Audit Log</h2>
-            <div class="terminal" id="outputConsole">// Spectre Meltdown Transient Engine Operations Console Ready
-// Connection established with Air-Gapped Supervisor
-// Cryptographic HMAC-SHA256 audit ledger loaded.
-// Ready for live task payload dispatch...</div>
-        </div>
-    </div>
+    <main class="grid">
+        <section class="card" aria-labelledby="audit-heading">
+            <h2 id="audit-heading">Evaluate input metrics</h2>
+            <form id="auditForm">
+                <div class="form-group"><label for="task_id">Task ID</label>
+                    <input id="task_id" type="text" value="DEMO-001" maxlength="128" required></div>
+                <div class="form-group"><label for="target_id">Target identifier</label>
+                    <input id="target_id" type="text" value="EXAMPLE-TARGET" maxlength="128" required></div>
+                <div class="form-group"><label for="primary_metric">Primary metric (illustrative threshold: 25)</label>
+                    <input id="primary_metric" type="number" value="29.4" step="any" required></div>
+                <div class="form-group"><label for="secondary_metric">Secondary metric (illustrative threshold: 12)</label>
+                    <input id="secondary_metric" type="number" value="14.8" step="any" required></div>
+                <div class="form-group"><label for="status_descriptor">Status descriptor</label>
+                    <input id="status_descriptor" type="text" value="DISCORDANT_ANOMALY" maxlength="64" required></div>
+                <div class="form-group"><label for="is_critical">
+                    <input id="is_critical" type="checkbox" checked> Mark input as critical</label></div>
+                <div class="form-actions">
+                    <button class="btn" type="submit">Evaluate</button>
+                    <button class="btn btn-secondary" type="button" id="downloadJson" disabled>Export JSON</button>
+                </div>
+            </form>
+        </section>
 
-    <script>
-        async function runAudit() {
-            const consoleEl = document.getElementById('outputConsole');
-            consoleEl.innerText = "// Dispatching task across specialized workers...
-// Invoking InvariantQCWorker, SafetyEscalationWorker, ProtocolWorker...";
-
-            const payload = {
-                task_id: document.getElementById('task_id').value,
-                target_identifier: document.getElementById('target_id').value,
-                primary_metric: parseFloat(document.getElementById('primary_metric').value),
-                secondary_metric: parseFloat(document.getElementById('secondary_metric').value),
-                status_descriptor: document.getElementById('status_descriptor').value,
-                is_critical_flag: document.getElementById('is_critical').checked
-            };
-
-            try {
-                const res = await fetch('/api/audit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                consoleEl.innerText = JSON.stringify(data, null, 2);
-                document.getElementById('m-tasks').innerText = parseInt(document.getElementById('m-tasks').innerText) + 1;
-                document.getElementById('m-audit').innerText = parseInt(document.getElementById('m-audit').innerText) + 1;
-            } catch (err) {
-                consoleEl.innerText = "// Offline / Simulation Output:\n" + JSON.stringify({
-                    dossier_id: "DOSSIER-SIM-" + Math.floor(Math.random()*10000),
-                    system: "spectre-meltdown-transient-engine",
-                    domain: "Clinical & Cryptographic AI",
-                    task_id: payload.task_id,
-                    overall_urgency: payload.is_critical_flag ? "CRITICAL_STAT_PANIC" : "ELEVATED_RISK",
-                    integrity_status: "DISCORDANT_ANOMALY",
-                    alerts: [
-                        { worker: "InvariantQCWorker", alert: "Primary metric exceeds upper reference bound" },
-                        { worker: "SafetyEscalationWorker", alert: "Critical emergency interlock flag active" }
-                    ],
-                    audit_hash: "HMAC_SHA256_e83f9a72b941d6c381f9"
-                }, null, 2);
-            }
-        }
-    </script>
+        <section class="card" aria-labelledby="output-heading">
+            <h2 id="output-heading">Local evaluation result</h2>
+            <pre class="terminal" id="outputConsole" role="status" aria-live="polite">Submit the form to evaluate the illustrative rules.
+No remote API, HMAC signature, or CPU scan is involved.</pre>
+        </section>
+    </main>
+    <script src="./app.js" defer></script>
 </body>
 </html>

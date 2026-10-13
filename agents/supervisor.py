@@ -1,6 +1,6 @@
 """
 Supervisor Orchestrator & Operations Intelligence for Spectre Meltdown Transient Agent.
-Domain: Clinical & Biomedical AI
+Purpose: illustrative metric rule evaluation
 """
 import uuid
 from typing import Dict, List
@@ -75,5 +75,5 @@ class SystemSupervisor:
 
     def query_supervisory_chat(self, query: str) -> str:
         PHIGuard.assert_no_phi(query)
-        prompt = f"Supervisor inquiry for Spectre Meltdown Transient Agent under CAP / CLSI / ISO Standards: {query}"
+        prompt = f"Supervisor inquiry for Spectre Meltdown Transient Agent using illustrative rule specifications: {query}"
         return self.llm.invoke(prompt)

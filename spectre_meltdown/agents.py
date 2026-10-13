@@ -93,7 +93,7 @@ class TransientExecutionCoordinator:
             "critical_count": crit_count,
             "warning_count": warn_count,
             "alerts": [a.to_dict() for a in all_alerts],
-            "standard_specification": "CISA / CERT Speculative Execution Guidelines",
+            "standard_specification": "Illustrative threshold rules (not a CPU test)",
             "consensus_summary": f"Consensus evaluation completed across 3 sub-agents with status [{status.value}].",
         }
 
@@ -105,6 +105,6 @@ class TransientExecutionCoordinator:
         if "status" in q or "ledger" in q:
             return f"Spectre / Meltdown Speculative Execution Side-Channel Verifier currently managing {len(self.execution_ledger)} execution tasks in air-gapped memory."
         elif "standard" in q or "spec" in q:
-            return "Active runtime operating strictly according to CISA / CERT Speculative Execution Guidelines specifications."
+            return "Illustrative rule specifications only; no speculative-execution or mitigation verification is performed."
         else:
-            return f"Spectre / Meltdown Speculative Execution Side-Channel Verifier executive coordinator online. Zero-telemetry on-premises surveillance active."
+            return "Rule-based demonstration coordinator available. No hardware monitoring is performed."

@@ -52,7 +52,7 @@ def main(argv=None):
         dossier = coordinator.process(payload)
         print("=" * 80)
         print(f"  SPECTRE / MELTDOWN SPECULATIVE EXECUTION SIDE-CHANNEL VERIFIER")
-        print(f"  Domain: Hardware Security | Standard: CISA / CERT Speculative Execution Guidelines")
+        print(f"  Illustrative metric thresholds | Not a CPU vulnerability test")
         print(f"  Task: {dossier['task_id']} | Status: [{dossier['overall_status']}] | Total Alerts: {dossier['total_alerts']}")
         print("=" * 80)
         for a in dossier["alerts"]:
@@ -83,7 +83,7 @@ def main(argv=None):
                 primary_metric=float(r.get("primary_metric", 15.0)),
                 secondary_metric=float(r.get("secondary_metric", 5.0)),
                 status_descriptor=r.get("status_descriptor", "NOMINAL"),
-                is_critical_flag=bool(r.get("is_critical_flag", False)),
+                is_critical_flag=str(r.get("is_critical_flag", "")).strip().lower() in ("true", "1", "yes"),
             )
             dossier = coordinator.process(payload)
             row_dict = dict(r)
