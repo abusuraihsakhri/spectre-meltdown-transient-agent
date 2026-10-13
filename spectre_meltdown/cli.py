@@ -52,7 +52,7 @@ def main(argv=None):
         dossier = coordinator.process(payload)
         print("=" * 80)
         print(f"  SPECTRE / MELTDOWN SPECULATIVE EXECUTION SIDE-CHANNEL VERIFIER")
-        print(f"  Domain: Hardware Security | Standard: CISA / CERT Speculative Execution Guidelines")
+        print(f"  Illustrative metric thresholds | Not a CPU vulnerability test")
         print(f"  Task: {dossier['task_id']} | Status: [{dossier['overall_status']}] | Total Alerts: {dossier['total_alerts']}")
         print("=" * 80)
         for a in dossier["alerts"]:
