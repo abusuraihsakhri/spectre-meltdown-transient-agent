@@ -2,7 +2,7 @@ name: Test and security regression checks
 
 on:
   push:
-    branches: [master, main, audit-407-reliability-web-security]
+    branches: [master, main]
   pull_request:
     branches: [master, main]
 
