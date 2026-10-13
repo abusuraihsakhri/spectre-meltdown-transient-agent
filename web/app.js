@@ -19,7 +19,7 @@ function validatePayload(raw) {
     }
     for (const field of ["primary_metric", "secondary_metric"]) {
         const value = Number(result[field]);
-        if (result[field] === "" || result[field] === null || !Number.isFinite(value)) {
+        if (result[field] === null || (typeof result[field] === "string" && result[field].trim() === "") || !Number.isFinite(value)) {
             throw new Error(field + " must be a finite number.");
         }
         result[field] = value;
