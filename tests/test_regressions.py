@@ -83,3 +83,16 @@ def test_unimplemented_external_llm_providers_are_rejected():
     for provider in ("openai", "ollama", "claude", "unknown"):
         with pytest.raises(ValueError, match="Unsupported"):
             LLMFactory.create(provider)
+
+
+def test_concurrent_audit_records_keep_valid_chain():
+    from concurrent.futures import ThreadPoolExecutor
+
+    trail = AuditTrail(secret_key="test-only")
+    def record(i):
+        trail.log("test", "worker", "CONCURRENT", {"index": i})
+
+    with ThreadPoolExecutor(max_workers=12) as executor:
+        list(executor.map(record, range(200)))
+    assert len(trail.get_trail()) == 200
+    assert trail.verify_integrity()
