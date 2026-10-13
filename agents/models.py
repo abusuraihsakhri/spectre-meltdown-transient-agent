@@ -1,7 +1,7 @@
 """
 Pydantic v2 schemas and data definitions for Spectre Meltdown Transient Agent.
 Domain: Clinical & Biomedical AI
-Standard: CAP / CLSI / ISO Standards
+Rule set: illustrative thresholds only; not a validated standard
 """
 import datetime
 from enum import Enum
@@ -51,7 +51,7 @@ class AgentAlert(BaseModel):
     summary: str
     technical_details: str
     actionable_remediation: str
-    standard_reference: str = "CAP / CLSI / ISO Standards"
+    standard_reference: str = "Illustrative metric rules (not externally validated)"
     timestamp: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,7 +69,7 @@ class ConsensusDossier(BaseModel):
     total_alerts: int
     critical_alerts_count: int
     alerts: List[AgentAlert]
-    standard_reference: str = "CAP / CLSI / ISO Standards"
+    standard_reference: str = "Illustrative metric rules (not externally validated)"
     consensus_summary: str
     audit_hash: str
     timestamp: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
