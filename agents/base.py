@@ -9,6 +9,7 @@ import time
 import hmac
 import hashlib
 import secrets
+from copy import deepcopy
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field
@@ -86,7 +87,7 @@ class AuditTrail:
             "current_hash": signature,
         }
         self.logs.append(entry)
-        return entry
+        return deepcopy(entry)
 
     def verify_integrity(self) -> bool:
         """Verify both chain linkage and HMAC signatures for all entries."""
@@ -106,7 +107,7 @@ class AuditTrail:
         return True
 
     def get_trail(self) -> List[Dict[str, Any]]:
-        return self.logs
+        return deepcopy(self.logs)
 
 
 GLOBAL_AUDIT = AuditTrail()
