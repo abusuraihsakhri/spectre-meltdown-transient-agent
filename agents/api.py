@@ -3,6 +3,7 @@ FastAPI REST API Server for Spectre Meltdown Transient Agent.
 """
 import os
 import secrets
+from typing import Optional
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from .base import AuditLogger, SecurityException
@@ -52,7 +53,7 @@ def api_chat(req: ChatRequest):
 
 
 @app.get("/api/audit/logs")
-def api_audit_logs(x_audit_token: str | None = Header(default=None)):
+def api_audit_logs(x_audit_token: Optional[str] = Header(default=None)):
     configured = os.getenv("AUDIT_LOG_READ_TOKEN")
     if not configured:
         raise HTTPException(status_code=503, detail="Audit log access is disabled")
