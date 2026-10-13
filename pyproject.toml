@@ -5,9 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "spectre-meltdown-transient-agent"
 version = "3.0.0"
-description = "Spectre / Meltdown Speculative Execution Side-Channel Verifier with Transient Agent Orchestration"
+description = "Illustrative multi-worker metric classification and in-memory audit demonstration"
 readme = "README.md"
-authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
+authors = [{ name = "Dr. Abu Suraih Sakhri" }]
 license = { text = "MIT" }
 classifiers = [
     "Programming Language :: Python :: 3",
