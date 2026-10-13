@@ -1,172 +1,81 @@
-# Spectre Meltdown Transient Agent
+# Spectre / Meltdown Transient Agent
 
-> **Domain:** Clinical Decision Support & Hardware Security  
-> **Standards:** CAP / CLSI / ISO / CISA / CERT Speculative Execution Guidelines
+A Python project containing two **illustrative metric-classification pipelines** and a static browser demo. Despite the repository name, this code does **not** probe speculative execution, measure cache timing, exploit vulnerabilities, enumerate microcode, or verify CPU mitigations. The rules use supplied numerical metrics and descriptor keywords; they are not established clinical or hardware-security thresholds.
 
-<div align="center">
+## Browser demonstration
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi&logoColor=white)
-![Audit Trail](https://img.shields.io/badge/Audit-HMAC--SHA256_Tamper--Evident-brightgreen.svg)
-![Zero-PHI Guard](https://img.shields.io/badge/Guard-Zero--PHI_Outbound-blue.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)
+Open `web/index.html` in a modern browser (or use the GitHub Pages deployment after it has been enabled and verified). Enter a task identifier, target identifier, two metrics, a descriptor, and an optional critical flag. The browser returns a JSON report and allows exporting it.
 
-</div>
+- Runs entirely in JavaScript; no backend, account, or Pyodide is required.
+- Thresholds: primary metric **> 25**; secondary metric **> 12**; critical flag overrides urgency; descriptor terms such as `ANOMALY`, `DISCORDANT`, `FAIL`, and `REJECT` raise warnings.
+- Results are **not** signed and are not evidence of actual Spectre/Meltdown susceptibility.
+- Page input is not transmitted to an API or stored by this application. Do **not** enter identifiable patient data or secrets.
 
----
+The browser demo is distinct from the Python API and is intended for education and checking the example classification rules. Its JavaScript implementation mirrors the `agents` worker thresholds.
 
-## 📖 What It Does
+## Python installation
 
-Spectre Meltdown Transient Agent is a multi-agent orchestration platform that evaluates task payloads across specialized worker agents, producing cryptographically signed consensus dossiers. It provides:
-
-- **Clinical & Biomedical AI** evaluation pipeline (Pydantic-based `agents` package)
-- **Hardware Security** speculative execution verifier (dataclass-based `spectre_meltdown` package)
-- **Zero-PHI Outbound Guard** preventing sensitive data leakage
-- **HMAC-SHA256 Tamper-Evident Audit Trail** with signature verification
-- **FastAPI REST API** with Prometheus telemetry
-
----
-
-## ⚙️ Key Capabilities & Algorithmic Modules
-
-- **Deterministic Calculation Engine**: Strict compliance with standard reference formulations and thresholds.
-- **Risk & Urgency Classification**: Multi-tier categorization (ROUTINE, ELEVATED_RISK, CRITICAL_STAT_PANIC) with automated action recommendations.
-- **Validation & Guardrails**: Input bounds checking, control character sanitization, and anomaly detection.
-- **Multi-Worker Consensus**: InvariantQCWorker, SafetyEscalationWorker, ProtocolConformanceWorker.
-
----
-
-## 💻 Installation
+Requires Python 3.9 or newer.
 
 ```bash
-pip install -e .
-# For web/API support:
-pip install -e ".[web]"
-# For development:
-pip install -e ".[dev]"
+python -m pip install -e ".[web,dev]"
+python -m pytest -q
+node --test tests/browser-smoke.cjs  # optional: Node.js 18+
 ```
 
----
+To install only the core CLI, use `python -m pip install -e .`.
 
-## 💻 CLI Quickstart & Usage
+## Command line
 
-### 1. Single Task Evaluation
 ```bash
-python cli.py audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
+spectre-meltdown-transient-agent audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --status DISCORDANT --critical
+spectre-meltdown-transient-agent chat "What is the status?"
+spectre-meltdown-transient-agent batch -i sample.csv -o results.csv
+spectre-meltdown-transient-agent verify-audit
+
+spectre-meltdown-frontier audit --primary 29.4 --secondary 15.1
+python simulator.py -n 100
 ```
 
-### 2. Supervisory Chat Query
-```bash
-python cli.py chat "What is the system status?"
-```
+The main entry point invokes `cli:main` and the frontier entry point invokes `spectre_meltdown.cli:main`. The `agents` pipeline uses Pydantic models, three rule workers, an in-memory HMAC audit chain, and a deterministic mock chat adapter. The `spectre_meltdown` pipeline uses dataclasses and a separate three-agent rule coordinator. Their thresholds and output schemas are not identical.
 
-### 3. Batch CSV Processing
-```bash
-python cli.py batch -i sample.csv -o results.csv
-```
+CSV batch files must use the schema shown in `sample.csv`; Boolean values can be `true`, `1`, or `yes` (case-insensitive). Invalid rows are skipped by the primary batch CLI with diagnostics. The audit chain exists **only within a running Python process**; invoking `verify-audit` in a new process verifies that process's in-memory chain, not previous invocations.
 
-### 4. Verify Audit Trail Integrity
-```bash
-python cli.py verify-audit
-```
+## Local API
 
-### 5. Launch REST API Server
 ```bash
+python -m pip install -e ".[web]"
 python cli.py serve --host 127.0.0.1 --port 8000
 ```
 
-### Parameter Reference
-| Argument | Description | Default |
-|:---------|:------------|:--------|
-| `--task-id` | Unique task identifier | `TASK-2026-001` |
-| `--target` | Target entity identifier | `KEY-TARGET-01` |
-| `--primary` | Primary measurement (float) | `28.5` |
-| `--secondary` | Secondary metric (float) | `14.2` |
-| `--critical` | Flag as critical | `False` |
-| `--status` | Status descriptor | `DISCORDANT` |
+The FastAPI service provides `GET /health`, `POST /api/audit`, `POST /api/chat`, `GET /metrics`, and `GET /api/audit/logs`. The metrics endpoint returns **JSON**, not Prometheus exposition text. API state and the audit trail are in memory and reset on restart.
 
-### Input Data Schema
+Audit-log reads are disabled by default. To enable this administrative endpoint, set `AUDIT_LOG_READ_TOKEN` in the server environment and send that value via the `X-Audit-Token` request header. Protect this token, use a private network or authenticated reverse proxy for deployments, and do not expose the audit, chat, or metrics endpoints to an untrusted network without additional controls. The environment variable `AUDIT_SECRET_KEY` sets the HMAC key; otherwise the process generates a nonpersistent random key.
 
-| Field | Description | Requirement |
-|:------|:------------|:------------|
-| `task_id` | Parameter / observation metric | Required, max 128 chars |
-| `target_identifier` | Parameter / observation metric | Required, max 128 chars |
-| `primary_metric` | Primary measurement value | Required (float) |
-| `secondary_metric` | Secondary measurement value | Optional (float) |
-| `is_critical_flag` | Emergency escalation flag | Optional (bool) |
-| `status_descriptor` | Status code descriptor | Optional, max 64 chars |
+The regex-based identifier guard only recognizes **selected patterns** and must not be considered reliable de-identification or HIPAA-compliant PHI detection. The chat adapter is a deterministic mock and **does not connect** to Ollama, OpenAI, Anthropic, or other providers.
 
----
-
-## 🛡️ Security & Enterprise Architecture
-
-* **Zero-PHI Outbound Interceptor:** Active regex inspection blocking SSNs, MRNs, phone numbers, emails, and patient identifiers.
-* **Tamper-Evident HMAC-SHA256 Audit Trail:** Chained, cryptographically signed logs with full signature verification for every evaluation.
-* **Input Sanitization:** Control character stripping, length limits, and whitespace normalization on all text fields.
-* **Secure Defaults:** Random session-based HMAC keys (no hardcoded secrets in source code).
-* **Air-Gapped LLM Reasoning Adapter:** Agnostic integration for local Ollama instances (`llama3`, `mistral`), Claude 3.5 Sonnet, GPT-4o, and deterministic test mocks.
-* **Active Learning Bayesian Calibration:** Dynamic tracker updating worker reliability weights and monitoring Brier calibration drift.
-* **FastAPI & Prometheus Telemetry:** Exposes OpenAPI 3.1 REST endpoints and operational Prometheus metrics (`/metrics`).
-
----
-
-## 🧪 Testing & Verification
-
-Run the automated test suite:
-
-```bash
-pytest -v
-```
-
-Execute high-throughput batch simulation benchmarks:
-
-```bash
-python simulator.py -n 1000
-```
-
----
-
-## 🐳 Container Deployment
+## Containers
 
 ```bash
 docker build -t spectre-meltdown-transient-agent .
-docker run -p 8000:8000 -e AUDIT_SECRET_KEY=your-secret-key spectre-meltdown-transient-agent
+docker run --rm -p 127.0.0.1:8000:8000 spectre-meltdown-transient-agent
+# or, using local-only port binding:
+docker compose up --build
 ```
 
-Or with Docker Compose:
+The container runs as a non-root user. Docker Compose binds port 8000 to localhost by default.
 
-```bash
-docker-compose up -d
-```
+## Structure and technology
 
----
+- `agents/`: Pydantic schemas, CLI/API orchestration, HMAC audit, workers, and mock chat adapter.
+- `spectre_meltdown/`: independent dataclass-based evaluator and CLI/API.
+- `enrichment.py`: threshold-demo classes labelled with transient-execution concepts; **no hardware probes**.
+- `web/`: standalone HTML/CSS/JavaScript browser demo.
+- `tests/`: Python tests and Node.js regression tests.
+- `.github/workflows/`: test pipeline and static GitHub Pages deployment workflow.
 
-## 📁 Project Structure
+The static page targets current Chromium, Firefox, and Safari versions; browser testing is limited to the included JavaScript checks unless a live deployment is subsequently verified. GitHub Pages requires the repository's Pages source to be configured for GitHub Actions; a deployment workflow alone does not establish a working live URL.
 
-```
-spectre_meltdown_transient_agent/
-├── agents/                  # Clinical & Biomedical AI package
-│   ├── api.py               # FastAPI REST endpoints
-│   ├── base.py              # Security, PHI guard, HMAC audit
-│   ├── models.py            # Pydantic schemas with validation
-│   ├── supervisor.py        # Multi-agent orchestrator
-│   ├── workers.py           # Specialized evaluation workers
-│   ├── llm_factory.py       # LLM provider abstraction
-│   ├── metrics.py           # Prometheus metrics collector
-│   ├── learning.py          # Bayesian calibration engine
-│   └── streamer.py          # WebSocket telemetry broadcaster
-├── spectre_meltdown/        # Hardware Security package
-│   ├── agents.py            # Sub-agent coordinators
-│   ├── engine.py            # Core algorithmic engine
-│   ├── models.py            # Dataclass schemas
-│   ├── cli.py               # Frontier CLI
-│   └── server.py            # Frontier FastAPI server
-├── tests/                   # Pytest test suite
-├── web/index.html           # Operations console UI
-├── cli.py                   # Main CLI entry point
-├── simulator.py             # Load testing simulator
-├── enrichment.py            # Domain enrichment engines
-├── Dockerfile               # Container build
-└── docker-compose.yml       # Container orchestration
-```
+## License
+
+[MIT](LICENSE).
